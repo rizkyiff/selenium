@@ -1,20 +1,29 @@
 import sys
 import os
-
-# Add the base directory to the Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-from page_object.example_page import ExamplePage
+
+# Add the base directory to the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from page_object.example_page import ExamplePage  # Make sure this path is correct
 
 @pytest.fixture
 def driver():
     """Setup and teardown for the WebDriver."""
-    # Initialize WebDriver
+    # Set up Chrome options for headless execution
+    chrome_options = Options()
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--headless')  # Run in headless mode
+    chrome_options.add_argument('--disable-gpu')
+
+    # Initialize WebDriver with Chrome options
     service = ChromeService(executable_path=ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    
     yield driver
     driver.quit()
 
